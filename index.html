@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>財務計算機｜Financial Calculator</title>
+<style>
+:root{
+  --body:#eef1f4; --calc:#20252b; --panel:#2c3239; --key:#f4f5f6; --key2:#d9dde1;
+  --darkkey:#424a53; --orange:#e99a2f; --screen:#c9d2b2; --ink:#1b2318;
+  --blue:#173f72; --muted:#66717d;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--body);font-family:Arial,"Microsoft JhengHei",sans-serif;color:#17202a}
+.page{max-width:760px;margin:0 auto;padding:18px 14px 32px}
+.head{text-align:center;margin:4px 0 14px}
+.head h1{font-size:24px;margin:0;color:var(--blue)}
+.head p{font-size:13px;color:var(--muted);margin:5px 0 0}
+.calc{max-width:520px;margin:auto;background:var(--calc);border-radius:22px;padding:16px;box-shadow:0 8px 22px rgba(0,0,0,.18)}
+.brand{display:flex;justify-content:space-between;align-items:end;color:#fff;padding:0 3px 10px}
+.brand b{font-size:18px;letter-spacing:.5px}.brand span{font-size:11px;color:#cbd1d7}
+.screen{background:var(--screen);border:5px solid #101418;border-radius:9px;padding:10px 12px 8px;min-height:102px;color:var(--ink);font-family:"Courier New",monospace;box-shadow:inset 0 2px 8px rgba(0,0,0,.25)}
+.indicators{min-height:18px;font-size:12px;display:flex;gap:10px;align-items:center}
+.indicators .active{font-weight:700}
+.display{font-size:34px;font-weight:700;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+.msg{font-family:Arial,"Microsoft JhengHei",sans-serif;font-size:12px;min-height:18px;text-align:right;overflow-wrap:anywhere}
+.tvm-label{color:#fff;font-size:11px;margin:12px 2px 5px;letter-spacing:.5px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+button{border:0;border-radius:9px;min-height:49px;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.45);touch-action:manipulation}
+button:active{transform:translateY(1px);box-shadow:none}
+.key{background:var(--key);color:#15191d}.secondary{background:var(--key2);color:#15191d}
+.dark{background:var(--darkkey);color:#fff}.accent{background:var(--orange);color:#151515}
+.tvm{background:#e8edf1;color:#122b48;border-top:4px solid #8fa5b9}
+.small{font-size:14px}.wide{grid-column:span 2}
+.help{max-width:520px;margin:14px auto 0;background:white;border-radius:14px;padding:13px 15px;border:1px solid #d8dde3;font-size:13px;line-height:1.6}
+.help b{color:var(--blue)}.help .note{color:var(--muted)}
+@media(max-width:430px){
+ .page{padding:10px 8px 24px}.head h1{font-size:20px}.calc{padding:11px;border-radius:16px}
+ .grid{gap:6px}button{min-height:47px;font-size:16px}.display{font-size:30px}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="head">
+    <h1>財務計算機</h1>
+    <p>Financial Management · Time Value of Money</p>
+  </header>
+
+  <section class="calc" aria-label="財務計算機">
+    <div class="brand"><b>FINANCIAL CALCULATOR</b><span>TVM · END / BGN</span></div>
+
+    <div class="screen" aria-live="polite">
+      <div class="indicators">
+        <span id="modeInd" class="active">END</span>
+        <span id="shiftInd"></span>
+        <span id="varInd"></span>
+      </div>
+      <div id="display" class="display">0</div>
+      <div id="msg" class="msg">輸入數值後按 TVM 鍵儲存；CPT → TVM 鍵計算</div>
+    </div>
+
+    <div class="tvm-label">TIME VALUE OF MONEY</div>
+    <div class="grid">
+      <button class="tvm" data-var="N">N</button>
+      <button class="tvm" data-var="IY">I/Y</button>
+      <button class="tvm" data-var="PV">PV</button>
+      <button class="tvm" data-var="PMT">PMT</button>
+      <button class="tvm" data-var="FV">FV</button>
+
+      <button id="second" class="accent small">2nd</button>
+      <button id="cpt" class="dark">CPT</button>
+      <button id="ce" class="secondary small">CE/C</button>
+      <button id="clrTvm" class="secondary small">CLR TVM</button>
+      <button id="sign" class="secondary">+/−</button>
+
+      <button class="key digit" data-d="7">7</button>
+      <button class="key digit" data-d="8">8</button>
+      <button class="key digit" data-d="9">9</button>
+      <button id="divide" class="dark">÷</button>
+      <button id="percent" class="dark">%</button>
+
+      <button class="key digit" data-d="4">4</button>
+      <button class="key digit" data-d="5">5</button>
+      <button class="key digit" data-d="6">6</button>
+      <button id="multiply" class="dark">×</button>
+      <button id="recip" class="dark">1/x</button>
+
+      <button class="key digit" data-d="1">1</button>
+      <button class="key digit" data-d="2">2</button>
+      <button class="key digit" data-d="3">3</button>
+      <button id="minus" class="dark">−</button>
+      <button id="sqrt" class="dark">√x</button>
+
+      <button class="key digit" data-d="0">0</button>
+      <button id="dot" class="key">.</button>
+      <button id="equals" class="accent">=</button>
+      <button id="plus" class="dark">+</button>
+      <button id="mode" class="dark small">END/BGN</button>
+    </div>
+  </section>
+
+  <section class="help">
+    <b>TVM 操作：</b>輸入數值 → 按 N、I/Y、PV、PMT 或 FV 儲存。要算未知數時，按 <b>CPT</b>，再按該 TVM 鍵。<br>
+    <b>例：</b>10,000 元、8%、3 年的終值：<b>3 N → 8 I/Y → 10000 +/− PV → 0 PMT → CPT FV</b>。<br>
+    <span class="note">I/Y 直接輸入百分比，例如 8 代表 8%。正負號表示現金流方向。END/BGN 可切換普通年金與期初年金。CE/C 清除目前輸入；CLR TVM 清除全部 TVM 資料。</span>
+  </section>
+</main>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s);
+const display=$('#display'), msg=$('#msg'), varInd=$('#varInd'), modeInd=$('#modeInd'), shiftInd=$('#shiftInd');
+let entry='0', entering=false, cpt=false, mode='END', pending=null, acc=null;
+const tvm={N:null,IY:null,PV:null,PMT:null,FV:null};
+
+function fmt(x){
+ if(!Number.isFinite(x)) return 'Error';
+ const ax=Math.abs(x);
+ if(ax!==0 && (ax>=1e12 || ax<1e-8)) return x.toExponential(8);
+ return Number(x.toFixed(10)).toLocaleString('en-US',{maximumFractionDigits:10});
+}
+function show(x=entry){ display.textContent=typeof x==='number'?fmt(x):x; }
+function setMsg(t){msg.textContent=t}
+function current(){ return Number(entry.replace(/,/g,'')); }
+function setEntry(x){ entry=String(x); entering=false; show(Number(x)); }
+function clearCpt(){cpt=false; shiftInd.textContent='';}
+
+document.querySelectorAll('.digit').forEach(b=>b.addEventListener('click',()=>{
+ clearCpt();
+ if(!entering || entry==='0'){entry=b.dataset.d;entering=true}else if(entry.replace('-','').length<15) entry+=b.dataset.d;
+ show(entry);
+}));
+$('#dot').addEventListener('click',()=>{
+ clearCpt();
+ if(!entering){entry='0.';entering=true}else if(!entry.includes('.')) entry+='.';
+ show(entry);
+});
+$('#sign').addEventListener('click',()=>{
+ if(entry==='0') return;
+ entry=entry.startsWith('-')?entry.slice(1):'-'+entry; entering=true; show(entry);
+});
+$('#ce').addEventListener('click',()=>{entry='0';entering=false;clearCpt();show();setMsg('目前輸入已清除')});
+$('#clrTvm').addEventListener('click',()=>{
+ Object.keys(tvm).forEach(k=>tvm[k]=null);entry='0';entering=false;clearCpt();varInd.textContent='';show();setMsg('TVM 資料已全部清除');
+});
+$('#cpt').addEventListener('click',()=>{cpt=true;shiftInd.textContent='CPT';setMsg('請按要計算的 TVM 鍵')});
+$('#mode').addEventListener('click',()=>{mode=mode==='END'?'BGN':'END';modeInd.textContent=mode;setMsg(mode==='END'?'END：期末付款（普通年金）':'BGN：期初付款（期初年金）')});
+$('#second').addEventListener('click',()=>{shiftInd.textContent='2nd';setMsg('本教學版的 2nd 保留作為介面提示；TVM 功能可直接操作')});
+
+function equation(N,r,PV,PMT,FV){
+ const f=Math.pow(1+r,N);
+ const ann = Math.abs(r)<1e-12 ? N : (f-1)/r;
+ const adj = mode==='BGN' ? (1+r) : 1;
+ return PV*f + PMT*ann*adj + FV;
+}
+function solve(target){
+ let {N,IY,PV,PMT,FV}=tvm;
+ const req={N,IY,PV,PMT,FV};
+ for(const k of Object.keys(req)) if(k!==target && req[k]===null) throw new Error('請先輸入 '+k);
+ let r=IY/100, ans;
+ if(target==='FV') ans=-(PV*Math.pow(1+r,N)+PMT*(Math.abs(r)<1e-12?N:(Math.pow(1+r,N)-1)/r)*(mode==='BGN'?(1+r):1));
+ else if(target==='PV') ans=-(FV+PMT*(Math.abs(r)<1e-12?N:(Math.pow(1+r,N)-1)/r)*(mode==='BGN'?(1+r):1))/Math.pow(1+r,N);
+ else if(target==='PMT'){
+   if(N===0) throw new Error('N 必須大於 0');
+   const f=Math.pow(1+r,N), den=(Math.abs(r)<1e-12?N:(f-1)/r)*(mode==='BGN'?(1+r):1);
+   ans=-(PV*f+FV)/den;
+ } else if(target==='N'){
+   if(Math.abs(PMT)<1e-12){
+     if(r===0 || PV===0 || -FV/PV<=0) throw new Error('無法求得 N');
+     ans=Math.log(-FV/PV)/Math.log(1+r);
+   }else{
+     ans=bisectN(r,PV,PMT,FV);
+   }
+ } else if(target==='IY') ans=bisectRate(N,PV,PMT,FV)*100;
+ if(!Number.isFinite(ans)) throw new Error('無法求得有效答案');
+ return ans;
+}
+function bisectN(r,PV,PMT,FV){
+ const f=n=>equation(n,r,PV,PMT,FV);
+ let lastN=0,last=f(0);
+ for(let n=.05;n<=10000;n+=.05){
+   const cur=f(n);
+   if(Number.isFinite(cur)&&last*cur<=0){
+     let a=lastN,b=n;
+     for(let j=0;j<80;j++){let m=(a+b)/2;if(f(a)*f(m)<=0)b=m;else a=m}
+     return (a+b)/2;
+   }
+   lastN=n;last=cur;
+ }
+ throw new Error('找不到 N');
+}
+function bisectRate(N,PV,PMT,FV){
+ const f=r=>equation(N,r,PV,PMT,FV);
+ let prevR=-.999,prev=f(prevR);
+ const max=20, steps=50000;
+ for(let i=1;i<=steps;i++){
+   const r=-.999+(max+.999)*i/steps,cur=f(r);
+   if(Number.isFinite(cur)&&Number.isFinite(prev)&&prev*cur<=0){
+     let a=prevR,b=r;
+     for(let j=0;j<90;j++){let m=(a+b)/2;if(f(a)*f(m)<=0)b=m;else a=m}
+     return (a+b)/2;
+   }
+   prevR=r;prev=cur;
+ }
+ throw new Error('找不到 I/Y');
+}
+
+document.querySelectorAll('.tvm').forEach(b=>b.addEventListener('click',()=>{
+ const k=b.dataset.var;
+ try{
+   if(cpt){
+     const ans=solve(k);tvm[k]=ans;setEntry(ans);varInd.textContent=k;setMsg(k+' = '+fmt(ans));clearCpt();
+   }else{
+     const v=current();
+     if(!Number.isFinite(v)) throw new Error('輸入無效');
+     tvm[k]=v;varInd.textContent=k;entering=false;show(v);setMsg(k+' 已儲存：'+fmt(v));
+   }
+ }catch(e){setMsg(e.message||'計算錯誤');display.textContent='Error';clearCpt()}
+}));
+
+function op(symbol,fn){
+ return ()=>{
+   const v=current();
+   if(pending&&acc!==null&&!entering){pending={symbol,fn};return}
+   if(pending&&acc!==null){acc=pending.fn(acc,v);setEntry(acc)}
+   else acc=v;
+   pending={symbol,fn};entering=false;setMsg(fmt(acc)+' '+symbol);
+ };
+}
+$('#plus').addEventListener('click',op('+',(a,b)=>a+b));
+$('#minus').addEventListener('click',op('−',(a,b)=>a-b));
+$('#multiply').addEventListener('click',op('×',(a,b)=>a*b));
+$('#divide').addEventListener('click',op('÷',(a,b)=>b===0?NaN:a/b));
+$('#equals').addEventListener('click',()=>{
+ if(!pending||acc===null)return;
+ const v=current(),res=pending.fn(acc,v);
+ if(!Number.isFinite(res)){display.textContent='Error';setMsg('運算錯誤');return}
+ setEntry(res);setMsg('= '+fmt(res));acc=null;pending=null;
+});
+$('#percent').addEventListener('click',()=>{setEntry(current()/100);setMsg('百分比')});
+$('#recip').addEventListener('click',()=>{const v=current();if(v===0){display.textContent='Error';setMsg('不能除以 0')}else{setEntry(1/v);setMsg('倒數')}});
+$('#sqrt').addEventListener('click',()=>{const v=current();if(v<0){display.textContent='Error';setMsg('負數不能開平方根')}else{setEntry(Math.sqrt(v));setMsg('平方根')}});
+
+show();
+})();
+</script>
+</body>
+</html>
